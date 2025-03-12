@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sensor Data Viewer</title>
+    <script>
+        async function fetchData(endpoint, elementId) {
+            try {
+                let response = await fetch(endpoint);
+                let data = await response.text();
+                document.getElementById(elementId).innerText = data;
+                return parseFloat(data.split(" ")[0]);
+            } catch (error) {
+                document.getElementById(elementId).innerText = "Error";
+                return 0;
+            }
+        }
+        
+        async function updateData() {
+            let ultrasonic = await fetchData("http://192.168.1.50/hc-sr04", "ultrasonic").then(value => value * 0.393701);
+            let irSensor = await fetchData("http://192.168.1.50/hw-488", "ir_sensor");
+            let temperature = await fetchData("http://192.168.1.50/dht-11", "temperature").then(value => (value * 9/5) + 32);
+            updateGraph(ultrasonic, irSensor, temperature);
+        }
+        
+        function updateGraph(ultrasonic, irSensor, temperature) {
+            let ctx = document.getElementById('sensorChart').getContext('2d');
+            if (window.myChart) window.myChart.destroy();
+            window.myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ["Ultrasonic (in)", "IR Sensor", "Temperature (F)"],
+                    datasets: [{
+                        label: 'Sensor Values',
+                        data: [ultrasonic, irSensor, temperature],
+                        backgroundColor: ['blue', 'red', 'green']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+        
+        setInterval(updateData, 2000);
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body onload="updateData()">
+    <h1>Sensor Data</h1>
+    <p>Ultrasonic Sensor: <span id="ultrasonic">Loading...</span></p>
+    <p>IR Sensor: <span id="ir_sensor">Loading...</span></p>
+    <p>Temperature & Humidity: <span id="temperature">Loading...</span></p>
+    <canvas id="sensorChart" width="400" height="200"></canvas>
+</body>
+</html>
