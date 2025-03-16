@@ -8,8 +8,8 @@
 
 #include <WiFiS3.h>
 
-const char ssid[] = "htpbdbnet";  // change your network SSID (name)
-const char pass[] = "0A239F4CD7123AFB906D35AA87";   // change your network password (use for WPA, or use as key for WEP)
+const char ssid[] = "";  // change your network SSID (name)
+const char pass[] = "";   // change your network password (use for WPA, or use as key for WEP)
 
 int status = WL_IDLE_STATUS;
 
